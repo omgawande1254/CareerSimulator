@@ -11,3 +11,10 @@ This is a Java-based career simulation game that allows users to experience diff
 
 ## 🧩 Project Structure
 
+com/
+└── careersim/
+├── database/ # Handles file/database interactions
+├── engine/ # Game loop and logic
+├── model/ # Data models (Player, CareerStage, etc.)
+└── ui/ # Console-based UI (or placeholder for future GUI)
+
