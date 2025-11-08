@@ -1,0 +1,48 @@
+// ===============================
+// 1️⃣ DATABASE & SAMPLE DATA
+// ===============================
+use collegeDB
+db.students.drop()
+
+db.students.insertMany([
+  { roll_no: 1, name: "Om Gawande", course: "B.Tech", marks: 920 },
+  { roll_no: 2, name: "Riya Patil", course: "B.Sc", marks: 870 },
+  { roll_no: 3, name: "Aarav Mehta", course: "B.Tech", marks: 980 },
+  { roll_no: 4, name: "Sara Khan", course: "B.Com", marks: 760 },
+  { roll_no: 5, name: "Ananya Joshi", course: "BCA", marks: 845 },
+  { roll_no: 6, name: "Karan Sharma", course: "B.Tech", marks: 950 }
+])
+
+// ===============================
+// 2️⃣ MAP FUNCTION
+// ===============================
+// Emit key-value pairs -> key: course, value: marks
+var mapFunction = function() {
+  emit(this.course, this.marks);
+};
+
+// ===============================
+// 3️⃣ REDUCE FUNCTION
+// ===============================
+// Calculate total and count of marks for each course
+var reduceFunction = function(keyCourse, valuesMarks) {
+  var total = Array.sum(valuesMarks);
+  return total / valuesMarks.length; // average marks per course
+};
+
+// ===============================
+// 4️⃣ RUN MAPREDUCE
+// ===============================
+db.students.mapReduce(
+  mapFunction,
+  reduceFunction,
+  {
+    out: "avgMarksByCourse"
+  }
+);
+
+// ===============================
+// 5️⃣ VIEW RESULTS
+// ===============================
+print("\nAverage Marks by Course (MapReduce Output):");
+db.avgMarksByCourse.find().forEach(printjson);

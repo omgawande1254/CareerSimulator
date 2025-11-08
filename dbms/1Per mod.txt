@@ -1,0 +1,13 @@
+show databases;
+use department;
+CREATE DATABASE EMPLOYEE;
+use EMPLOYEE;
+CREATE TABLE EMP_DETAILS(
+EMP_ID int PRIMARY KEY,
+NAME varchar(20),
+EMP_DEPT VARCHAR (30)
+);
+INSERT INTO EMP_DETAILS values (1, 'Anuja', 'CE');
+INSERT INTO EMP_DETAILS values (2, 'Supriya', 'CE');
+INSERT INTO EMP_DETAILS values (3, 'Pranjal', 'CE');
+select*from EMP_DETAILS;

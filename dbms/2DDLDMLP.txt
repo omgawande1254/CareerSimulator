@@ -1,0 +1,132 @@
+ Part A: DDL Statements
+1. Create Database
+CREATE DATABASE StudentDB;
+USE StudentDB;
+
+
+2. Create Tables with Constraints
+CREATE TABLE Department (
+    DeptID INT PRIMARY KEY,
+    DeptName VARCHAR(50) NOT NULL UNIQUE
+);
+
+CREATE TABLE Student (
+    StudentID INT PRIMARY KEY,
+    FirstName VARCHAR(50) NOT NULL,
+    LastName VARCHAR(50),
+    Gender CHAR(1) CHECK (Gender IN ('M','F')),
+    DOB DATE,
+    DeptID INT,
+    Email VARCHAR(100) UNIQUE,
+    CONSTRAINT fk_dept FOREIGN KEY (DeptID) REFERENCES Department(DeptID)
+);
+
+
+3. Create Table with Default and Check Constraint
+CREATE TABLE Course (
+    CourseID INT PRIMARY KEY,
+    CourseName VARCHAR(50) NOT NULL,
+    Credits INT DEFAULT 3 CHECK (Credits BETWEEN 1 AND 5)
+);
+
+
+4. Create an Enrollment Table (Many-to-Many Relationship)
+CREATE TABLE Enrollment (
+    EnrollID INT PRIMARY KEY,
+    StudentID INT,
+    CourseID INT,
+    EnrollDate DATE DEFAULT CURRENT_DATE,
+    Grade CHAR(2),
+    CONSTRAINT fk_student FOREIGN KEY (StudentID) REFERENCES Student(StudentID),
+    CONSTRAINT fk_course FOREIGN KEY (CourseID) REFERENCES Course(CourseID)
+);
+
+
+5. Create a Sequence
+CREATE SEQUENCE seq_student
+START WITH 101
+INCREMENT BY 1
+NOCACHE
+NOCYCLE;
+
+
+6. Create an Index
+CREATE INDEX idx_student_name
+ON Student (FirstName, LastName);
+
+
+7. Create a View
+CREATE VIEW vw_student_details AS
+SELECT s.StudentID, s.FirstName, s.LastName, d.DeptName, s.Email
+FROM Student s
+JOIN Department d ON s.DeptID = d.DeptID;
+
+
+8. Create a Synonym (For Oracle)
+CREATE SYNONYM stud FOR Student;
+
+
+🧮 Part B: DML Statements (Queries)
+1. Insert Data into Tables
+INSERT INTO Department VALUES (1, 'Computer Science');
+INSERT INTO Department VALUES (2, 'Mechanical');
+
+INSERT INTO Student VALUES (NEXT VALUE FOR seq_student, 'Om', 'Gawande', 'M', '2003-09-12', 1, 'omg@gmail.com');
+INSERT INTO Student VALUES (NEXT VALUE FOR seq_student, 'Riya', 'Patil', 'F', '2002-05-10', 2, 'riya@gmail.com');
+
+INSERT INTO Course VALUES (101, 'DBMS', 4);
+INSERT INTO Course VALUES (102, 'Data Structures', 3);
+
+INSERT INTO Enrollment VALUES (1, 101, 101, '2024-06-10', 'A');
+INSERT INTO Enrollment VALUES (2, 102, 102, '2024-06-10', 'B');
+
+
+2. Update Data
+UPDATE Student
+SET Email = 'omgawande@gmail.com'
+WHERE StudentID = 101;
+
+
+3. Delete Data
+DELETE FROM Enrollment WHERE Grade = 'F';
+
+
+4. Select All Students
+SELECT * FROM Student;
+
+
+5. Select with WHERE Clause
+SELECT FirstName, LastName, Email
+FROM Student
+WHERE DeptID = 1;
+
+
+6. Select Using ORDER BY
+SELECT * FROM Course
+ORDER BY Credits DESC;
+
+
+7. Aggregate Function (COUNT)
+SELECT DeptID, COUNT(*) AS Total_Students
+FROM Student
+GROUP BY DeptID;
+
+
+8. JOIN Query
+SELECT s.FirstName, s.LastName, c.CourseName, e.Grade
+FROM Student s
+JOIN Enrollment e ON s.StudentID = e.StudentID
+JOIN Course c ON e.CourseID = c.CourseID;
+
+
+9. HAVING Clause
+SELECT c.CourseName, COUNT(e.StudentID) AS Total_Students
+FROM Course c
+JOIN Enrollment e ON c.CourseID = e.CourseID
+GROUP BY c.CourseName
+HAVING COUNT(e.StudentID) > 1;
+
+
+10. Query from View
+SELECT * FROM vw_student_details;
+

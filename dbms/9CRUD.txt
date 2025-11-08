@@ -1,0 +1,64 @@
+// Use or create database
+use collegeDB
+
+// ---- CREATE ----
+db.students.insertMany([
+  { roll_no: 1, name: "Om Gawande", course: "B.Tech", marks: 920, city: "Nagpur" },
+  { roll_no: 2, name: "Riya Patil", course: "B.Sc", marks: 870, city: "Mumbai" },
+  { roll_no: 3, name: "Aarav Mehta", course: "B.Tech", marks: 980, city: "Pune" },
+  { roll_no: 4, name: "Sara Khan", course: "B.Com", marks: 760, city: "Delhi" }
+])
+
+// ---- READ ----
+print("All Students:")
+db.students.find().forEach(printjson)
+
+// Find students with marks > 850
+print("\nStudents with marks > 850:")
+db.students.find({ marks: { $gt: 850 } }).forEach(printjson)
+
+// ---- UPDATE ----
+// Update marks of one student
+db.students.updateOne(
+  { roll_no: 2 },
+  { $set: { marks: 900 } }
+)
+
+// Increase marks by 10 for all B.Tech students
+db.students.updateMany(
+  { course: "B.Tech" },
+  { $inc: { marks: 10 } }
+)
+
+// ---- SAVE ----
+// Save inserts new document or replaces existing one
+db.students.save({
+  roll_no: 5,
+  name: "Ananya Joshi",
+  course: "BCA",
+  marks: 845,
+  city: "Chennai"
+})
+
+// ---- DELETE ----
+// Delete one record
+db.students.deleteOne({ roll_no: 4 })
+
+// ---- LOGICAL OPERATORS ----
+// Students either from Pune or marks < 900
+print("\nStudents from Pune OR marks < 900:")
+db.students.find({
+  $or: [{ city: "Pune" }, { marks: { $lt: 900 } }]
+}).forEach(printjson)
+
+// Students with marks between 850 and 950
+print("\nStudents with marks between 850 and 950:")
+db.students.find({
+  $and: [{ marks: { $gte: 850 } }, { marks: { $lte: 950 } }]
+}).forEach(printjson)
+
+// ---- SORT & COUNT ----
+print("\nAll students sorted by marks descending:")
+db.students.find().sort({ marks: -1 }).forEach(printjson)
+
+print("\nTotal students count: " + db.students.countDocuments())

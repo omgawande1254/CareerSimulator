@@ -1,0 +1,58 @@
+CREATE DATABASE IF NOT EXISTS library_db;
+USE library_db;
+
+CREATE TABLE Library (
+    Book_ID INT PRIMARY KEY,
+    Book_Name VARCHAR(100),
+    Author VARCHAR(100),
+    Price DECIMAL(10,2)
+);
+
+CREATE TABLE Library_Audit (
+    Audit_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Book_ID INT,
+    Book_Name VARCHAR(100),
+    Author VARCHAR(100),
+    Price DECIMAL(10,2),
+    Action_Type VARCHAR(20),
+    Action_Date DATETIME
+);
+
+
+INSERT INTO Library VALUES
+(1, 'DBMS Concepts', 'Korth', 550),
+(2, 'Let Us C', 'Yashwant Kanetkar', 350),
+(3, 'Operating Systems', 'Silberschatz', 600);
+
+
+DELIMITER $$
+
+CREATE TRIGGER before_library_update
+BEFORE UPDATE ON Library
+FOR EACH ROW
+BEGIN
+    INSERT INTO Library_Audit (Book_ID, Book_Name, Author, Price, Action_Type, Action_Date)
+    VALUES (OLD.Book_ID, OLD.Book_Name, OLD.Author, OLD.Price, 'UPDATE', NOW());
+END$$
+
+DELIMITER ;
+
+
+DELIMITER $$
+
+CREATE TRIGGER before_library_delete
+BEFORE DELETE ON Library
+FOR EACH ROW
+BEGIN
+    INSERT INTO Library_Audit (Book_ID, Book_Name, Author, Price, Action_Type, Action_Date)
+    VALUES (OLD.Book_ID, OLD.Book_Name, OLD.Author, OLD.Price, 'DELETE', NOW());
+END$$
+
+DELIMITER ;
+
+
+UPDATE Library SET Price = 700 WHERE Book_ID = 1;
+DELETE FROM Library WHERE Book_ID = 2;
+
+
+SELECT * FROM Library_Audit;

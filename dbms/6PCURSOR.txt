@@ -1,0 +1,68 @@
+-- Create base tables
+CREATE TABLE O_RollCall (
+    Roll_No NUMBER PRIMARY KEY,
+    Name VARCHAR2(50)
+);
+
+CREATE TABLE N_RollCall (
+    Roll_No NUMBER PRIMARY KEY,
+    Name VARCHAR2(50)
+);
+
+
+-- Old Roll Call data
+INSERT INTO O_RollCall VALUES (1, 'Om Gawande');
+INSERT INTO O_RollCall VALUES (2, 'Raj Mehta');
+INSERT INTO O_RollCall VALUES (3, 'Neha Sharma');
+
+-- New Roll Call data (includes one duplicate Roll_No)
+INSERT INTO N_RollCall VALUES (3, 'Neha Sharma');
+INSERT INTO N_RollCall VALUES (4, 'Aditi Patil');
+INSERT INTO N_RollCall VALUES (5, 'Vikas Rao');
+
+COMMIT;
+
+
+SET SERVEROUTPUT ON;
+
+DECLARE
+    -- Cursor parameterized by roll number
+    CURSOR c_new_students(p_roll NUMBER) IS
+        SELECT Roll_No, Name
+        FROM N_RollCall
+        WHERE Roll_No = p_roll;
+
+    v_roll  N_RollCall.Roll_No%TYPE;
+    v_name  N_RollCall.Name%TYPE;
+
+    v_exists NUMBER;
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('--- Merging N_RollCall into O_RollCall ---');
+
+    -- Loop through all records in N_RollCall
+    FOR rec IN (SELECT Roll_No FROM N_RollCall) LOOP
+        -- Check if record already exists in O_RollCall
+        SELECT COUNT(*) INTO v_exists
+        FROM O_RollCall
+        WHERE Roll_No = rec.Roll_No;
+
+        -- If not exists, open parameterized cursor for that roll number
+        IF v_exists = 0 THEN
+            OPEN c_new_students(rec.Roll_No);
+            FETCH c_new_students INTO v_roll, v_name;
+            
+            INSERT INTO O_RollCall VALUES (v_roll, v_name);
+            DBMS_OUTPUT.PUT_LINE('Inserted: ' || v_roll || ' - ' || v_name);
+            
+            CLOSE c_new_students;
+        ELSE
+            DBMS_OUTPUT.PUT_LINE('Skipped duplicate Roll_No: ' || rec.Roll_No);
+        END IF;
+    END LOOP;
+
+    DBMS_OUTPUT.PUT_LINE('--- Merge Completed ---');
+END;
+/
+
+
+SELECT * FROM O_RollCall;
